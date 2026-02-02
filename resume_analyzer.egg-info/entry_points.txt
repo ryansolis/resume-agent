@@ -1,0 +1,2 @@
+[console_scripts]
+resume-analyzer = resume_analyzer.cli:app

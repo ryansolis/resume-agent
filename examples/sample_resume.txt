@@ -1,0 +1,19 @@
+Ryan Developer
+Senior Software Engineer
+
+SUMMARY
+5+ years building backend systems and APIs. Strong in Python, Node.js, and SQL. Experience with REST APIs, PostgreSQL, Docker, and AWS.
+
+EXPERIENCE
+Senior Engineer, Tech Co. (2021–Present)
+- Led migration to Python 3 and FastAPI; reduced latency by 40%.
+- Designed REST APIs and SQL schemas for high-throughput services.
+- Used Docker and Kubernetes for deployment; AWS for infrastructure.
+
+Software Engineer, Startup Inc. (2019–2021)
+- Developed Node.js services and C++ components for data pipelines.
+- Worked with NoSQL (MongoDB) and relational databases (PostgreSQL).
+- Wrote unit tests with pytest and Jest.
+
+SKILLS
+Python, C++, Node.js, JavaScript, SQL, NoSQL, REST, API, PostgreSQL, MongoDB, Docker, Kubernetes, AWS, FastAPI.

@@ -1,0 +1,13 @@
+Senior Backend Engineer
+
+We are looking for a backend engineer with strong experience in Python and API design.
+
+Requirements:
+- 4+ years experience with Python (Python 3 preferred)
+- REST API design and implementation
+- SQL and relational databases (PostgreSQL a plus)
+- Docker and containerized deployments
+- AWS or GCP
+- Nice to have: JavaScript/Node.js, Kubernetes, FastAPI
+
+You will work on high-scale services and collaborate with product and platform teams.
