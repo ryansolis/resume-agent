@@ -15,6 +15,40 @@ Lightweight tool that evaluates a plain-text resume against a target role by ext
 
 ---
 
+## Architecture
+
+```mermaid
+flowchart LR
+  subgraph inputs["Inputs"]
+    R["Resume (.txt or raw text)"]
+    T["Target: JD or role + keywords"]
+  end
+
+  subgraph core["Analyzer Core"]
+    N[normalize]
+    E[extract]
+    M[match]
+    S[score]
+    N --> E --> M --> S
+  end
+
+  subgraph outputs["Outputs"]
+    J["JSON (top_keywords, matched, missing, score)"]
+    H["Readable summary"]
+    I["CLI / API"]
+  end
+
+  R --> core
+  T --> core
+  core --> J
+  core --> H
+  core --> I
+```
+
+Pipeline: **normalize** (tokenize, special tokens e.g. C++/.NET) → **extract** (keywords, ranking) → **match** (synonym-aware matched/missing) → **score** (deterministic 0–100). Single core; CLI and API both call the same analyzer.
+
+---
+
 ## Quick start
 
 ### Install and run locally
