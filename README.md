@@ -164,6 +164,26 @@ Covers: normalization (C++, Node.js, .NET, SQL/NoSQL), synonyms (Python/Python3,
 
 A `Dockerfile` is provided for deployment (e.g. Railway, Render, Fly.io).
 
+### Deploy on Render
+
+1. Go to [render.com](https://render.com) and sign in with **GitHub**.
+2. **New** → **Web Service**.
+3. Connect your **resume-agent** repo and select it.
+4. **Settings:**
+   - **Name:** e.g. `resume-analyzer`
+   - **Environment:** **Docker** (Render will use the repo’s `Dockerfile`).
+   - **Region:** choose one.
+   - **Plan:** Free or paid.
+5. Click **Create Web Service**. Render builds from the Dockerfile and deploys.
+6. Once live, copy your service URL (e.g. `https://resume-analyzer-xxxx.onrender.com`).
+   - **Analyze:** `POST https://<your-service>.onrender.com/analyze`
+   - **Docs:** `https://<your-service>.onrender.com/docs`
+   - **Health:** `https://<your-service>.onrender.com/health`
+
+The app listens on Render’s `PORT`; the Dockerfile is set up to use it.
+
+### Run Docker locally
+
 ```bash
 docker build -t resume-analyzer .
 docker run -p 8000:8000 resume-analyzer
