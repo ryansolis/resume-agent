@@ -137,13 +137,34 @@ Confidence notes:
 
 - **Formula:** `score = (matched_count / max(1, target_keyword_count)) * 100`, capped at 100.
 - **Interpretation:** Percentage of target keywords that appear in the resume (after normalization and synonym expansion).
+- **Why this formula:** Keyword overlap (with synonym expansion) keeps the score fully explainable: it’s the share of target keywords present in the resume, with no black box. Same inputs always yield the same score.
 - **Deterministic:** Same inputs → same score. No ML; keyword-based only.
 - **Confidence notes:** Added when score is very low, very high, or when few target keywords were provided.
+
+### Edge cases (boundary handling)
+
+Explicit handling so tech terms are treated correctly:
+
+| Case | Behavior |
+|------|----------|
+| **C++**, **Node.js**, **.NET** | Kept as single tokens (not split on punctuation). |
+| **SQL vs NoSQL** | Treated as distinct; not synonyms. |
+| **Python / Python 3** | Synonyms; “Python 3” in JD matches “Python” in resume. |
+| **JavaScript / JS / Node.js** | Synonyms for matching. |
+| **.NET / C#** | Synonyms. |
+
+See `resume_analyzer/normalize.py` (special tokens) and `resume_analyzer/synonyms.py` (curated map).
+
+### Design decisions
+
+- **Keyword overlap, not semantic similarity** — Keeps the score simple and explainable; no embeddings or ML. Tradeoff: “machine learning” in the JD won’t match “ML” in the resume unless we add that synonym.
+- **Curated synonym list** — Small, explicit map (Python↔Python3, JS↔JavaScript, etc.) so matching is predictable and easy to extend.
+- **Single core, two interfaces** — CLI and API both call the same analyzer; one implementation to test and maintain.
 
 ### Limitations
 
 - **Plain text only** — no PDF/Word parsing.
-- **Keyword-based** — no semantic similarity or embeddings.
+- **Keyword-based** — no semantic similarity or embeddings. This is a fast signal, not a semantic match.
 - **Not an ATS** — use as a fast signal, not a hiring gate.
 - **English-oriented** — stopwords and tokenization tuned for English.
 
@@ -176,9 +197,9 @@ A `Dockerfile` is provided for deployment (e.g. Railway, Render, Fly.io).
    - **Plan:** Free or paid.
 5. Click **Create Web Service**. Render builds from the Dockerfile and deploys.
 6. Once live, copy your service URL (e.g. `https://resume-analyzer-xxxx.onrender.com`).
-   - **Analyze:** `POST https://<your-service>.onrender.com/analyze`
-   - **Docs:** `https://<your-service>.onrender.com/docs`
-   - **Health:** `https://<your-service>.onrender.com/health`
+   - **Analyze:** `POST https://resume-agent-px2s.onrender.com/analyze`
+   - **Docs:** `https://resume-agent-px2s.onrender.com/docs`
+   - **Health:** `https://resume-agent-px2s.onrender.com/health`
 
 The app listens on Render’s `PORT`; the Dockerfile is set up to use it.
 
@@ -189,6 +210,33 @@ docker build -t resume-analyzer .
 docker run -p 8000:8000 resume-analyzer
 # POST http://localhost:8000/analyze
 ```
+
+### Testing the deployment
+
+Live URL: **https://resume-agent-px2s.onrender.com**
+
+**Browser (GET):**
+
+- **Root / info:** [https://resume-agent-px2s.onrender.com/](https://resume-agent-px2s.onrender.com/)
+- **Health:** [https://resume-agent-px2s.onrender.com/health](https://resume-agent-px2s.onrender.com/health)
+- **API docs (Swagger):** [https://resume-agent-px2s.onrender.com/docs](https://resume-agent-px2s.onrender.com/docs) — use “Try it out” on `POST /analyze` to send a request from the browser.
+
+**Terminal — POST /analyze (curl):**
+
+```bash
+curl -X POST https://resume-agent-px2s.onrender.com/analyze \
+  -H "Content-Type: application/json" \
+  -d '{"resume_text": "Python developer with 5 years experience. REST APIs, SQL, Docker.", "job_description": "We need Python, API, and SQL skills."}'
+```
+
+**PowerShell (Windows):**
+
+```powershell
+$body = '{"resume_text": "Python developer with 5 years experience. REST APIs, SQL, Docker.", "job_description": "We need Python, API, and SQL skills."}'
+Invoke-RestMethod -Uri "https://resume-agent-px2s.onrender.com/analyze" -Method Post -Body $body -ContentType "application/json"
+```
+
+**Free tier:** On Render’s free plan, the instance spins down after inactivity. The first request after idle can take ~50 seconds; retry if it times out.
 
 ---
 
@@ -221,5 +269,6 @@ resume-agent/
 ## Submission
 
 - **Repo:** [your-repo-link]
-- **Deployed endpoint:** `POST https://your-app.up.railway.app/analyze` (or equivalent)
+- **Deployed endpoint:** `POST https://resume-agent-px2s.onrender.com/analyze`
 - **Run locally:** `pip install -e .` then `resume-analyzer analyze -r examples/sample_resume.txt -j examples/sample_jd.txt`
+
